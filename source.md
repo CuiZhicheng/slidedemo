@@ -105,12 +105,9 @@ class: center, middle
 #### &nbsp; &nbsp; Sandbox：Sandbox对象是CNM Sandbox的一种实现。Sandbox对象代表了一个容器的网络栈，拥有IP地址，MAC地址，routes，DNS等网络资源。一个Sandbox对象中可以有多个Endpoint对象，这些Endpoint对象可以属于不同的Network对象，Endpoint对象使用Sandbox对象中的网络资源与外界进行通信。Sandbox对象的创建发生在Endpoint对象的创建后，（Endpoint对象所属的）Network对象所绑定的Driver对象为该Sandbox对象分配网络资源并返回给libnetwork，然后libnetwork使用特定的机制（如linux netns）去配置Sandbox对象中对应的网络资源。
 
 ### API
-* driver.Config
-* driver.CreateNetwork
-* driver.DeleteNetwork
-* driver.CreateEndpoint
-* driver.DeleteEndpoint
-* driver.Join
+* driver.Config				* driver.CreateNetwork
+* driver.DeleteNetwork		* driver.CreateEndpoint
+* driver.DeleteEndpoint		* driver.Join
 * driver.Leave
 
 ---
@@ -119,14 +116,8 @@ class: center, middle
 
 ```
 func main() {
-	if reexec.Init() {
-		return
-	}
-
-	// Select and configure the network driver
 	networkType := "bridge"
 
-	// Create a new controller instance
 	driverOptions := options.Generic{}
 	genericOption := make(map[string]interface{})
 	genericOption[netlabel.GenericData] = driverOptions
@@ -158,6 +149,57 @@ func main() {
 #### &nbsp; &nbsp; CNI没有像CNM一样规定模型的术语，CNI的实现依赖于两种plugin：CNI Plugin负责将容器connect/disconnect到host中的vbridge/vswitch，IPAM Plugin负责配置容器namespace中的网络参数。
 
 #### &nbsp; &nbsp; CNI要求CNI Plugin支持容器的Add/Delete操作
+
+* AddNetworkList		* DelNetworkList
+
+
+---
+
+## CNI
+
+```
+$ cat >/etc/cni/net.d/10-mynet.conf <<EOF
+{
+	"cniVersion": "0.2.0",
+	"name": "mynet",
+	"type": "bridge",
+	"bridge": "cni0",
+	"isGateway": true,
+	"ipMasq": true,
+	"ipam": {
+		"type": "host-local",
+		"subnet": "10.22.0.0/16",
+		"routes": [
+			{ "dst": "0.0.0.0/0" }
+		]
+	}
+}
+```
+
+---
+
+## CNI -- Calico
+
+```
+{
+    "name": "frontend",
+    "type": "calico",
+    "log_level": "DEBUG",
+    "etcd_endpoints": "http://162.105.175.30:2379",
+    "ipam": {
+        "type": "calico-ipam",
+        "assign_ipv4": "true",
+        "assign_ipv6": "true",
+        "ipv4_pools": ["10.0.0.0/24", "20.0.0.0/16"],
+        "ipv6_pools": ["2001:db8::1/120"]
+    }
+}
+```
+
+---
+
+
+
 
 
 ---
