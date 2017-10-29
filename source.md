@@ -165,98 +165,42 @@ func main() {
 
 示意图如下：
 
-<img src="./cni.jpg" width=1000 style="margin: 0px 80px">
+<img src="./cni.jpg" width=800 style="margin: 0px 80px">
 
 ---
 
 ## CNI -- 配置示例
 
-
-<figure class="half">
 ```
-$ cat >/etc/cni/net.d/10-mynet.conf <<EOF
-{
-	"cniVersion": "0.2.0",
-	"name": "mynet",
-	"type": "bridge",
-	"bridge": "cni0",
-	"isGateway": true,
-	"ipMasq": true,
-	"ipam": {
-		"type": "host-local",
-		"subnet": "10.22.0.0/16",
-		"routes": [
-			{ "dst": "0.0.0.0/0" }
-		]
-	}
+$ cat >/etc/cni/net.d/10-bridge.conf <<EOF					$ cat >/etc/cni/net.d/10-calico.conf <<EOF
+{															{
+	"cniVersion": "0.2.0",										"cniVersion": "0.2.0",
+	"name": "mynet",											"name": "frontend",
+	"type": "bridge",											"type": "calico",
+	"bridge": "cni0",											"log_level": "DEBUG",,
+	"isGateway": true,											"ipam": {
+	"ipMasq": true,													"type": "calico-ipam",
+	"ipam": {														"assign_ipv4": "true",
+		"type": "host-local",										"assign_ipv6": "true",
+		"subnet": "10.22.0.0/16",									"ipv4_pools": ["10.0.0.0/24", "20.0.0.0/16"],
+		"routes": [													"ipv6_pools": ["2001:db8::1/120"]
+			{ "dst": "0.0.0.0/0" }								}
+		]														"etcd_endpoints": "http://162.105.175.30:2379",
+	}														}
 }
 ```
-```
-{
-    "name": "frontend",
-    "type": "calico",
-    "log_level": "DEBUG",
-    "etcd_endpoints": "http://162.105.175.30:2379",
-    "ipam": {
-        "type": "calico-ipam",
-        "assign_ipv4": "true",
-        "assign_ipv6": "true",
-        "ipv4_pools": ["10.0.0.0/24", "20.0.0.0/16"],
-        "ipv6_pools": ["2001:db8::1/120"]
-    }
-}
-```
-</figure>
-
----
-
-## CNI -- Calico
-
-```
-{
-    "name": "frontend",
-    "type": "calico",
-    "log_level": "DEBUG",
-    "etcd_endpoints": "http://162.105.175.30:2379",
-    "ipam": {
-        "type": "calico-ipam",
-        "assign_ipv4": "true",
-        "assign_ipv6": "true",
-        "ipv4_pools": ["10.0.0.0/24", "20.0.0.0/16"],
-        "ipv6_pools": ["2001:db8::1/120"]
-    }
-}
-```
-
 ---
 
 ## CNM与CNI对比
 
+#### &nbsp; &nbsp; 使用驱动模型或者插件模型来为容器创建网络栈。
+这样的设计使得用户可以自由选择。两者都支持多个网络驱动被同时使用，也允许容器加入一个或多个网络。两者也都允许容器runtime在它自己的命名空间中启动网络，
 
 
+#### &nbsp; &nbsp; CNM 模式下的网络驱动不能访问容器的网络命名空间，CNI模式允许驱动访问容器的网络命名空间；
 
 
-
-
----
-
-## 插图
-
-** Ada Lovelace **
-
-<img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Ada_Lovelace_color.svg" width=300 style="margin: 0px 80px">
-
----
-
-## `\(\LaTeX{}\)` in remark
-
-
-1. This is an inline integral: `\(\int_a^bf(x)dx\)`
-2. More `\(x={a \over b}\)` formulae.
-
-Display formula:
-
-$$e^{i\pi} + 1 = 0$$
+#### &nbsp; &nbsp; CNI支持与第三方IPAM的集成，可以用于任何容器runtime，CNM从设计上就仅仅支持Docker。
 
 ---
 
