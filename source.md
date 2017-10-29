@@ -76,6 +76,10 @@ class: center, middle
 
 <img src="./CNM.png" width=300 style="margin: 0px 80px">
 
+---
+
+## CNM（Container
+
 #### &nbsp; &nbsp; Sandbox：一个Sandbox对应一个容器的网络栈，能够对该容器的interface、route、dns等参数进行管理。一个Sandbox中可以有多个Endpoint，这些Endpoint可以属于不同的Network。Sandbox的实现可以为linux network namespace、FreeBSD Jail或其他类似的机制。
 
 #### &nbsp; &nbsp; Endpoint： Sandbox通过Endpoint接入Network，一个Endpoint只能属于一个Network，but may only belong to one Sandbox（这句翻译不好）。Endpoint的实现可以是veth pair、Open vSwitch internal port或者其他类似的设备。
@@ -92,9 +96,23 @@ class: center, middle
 
 #### &nbsp; &nbsp; Driver：Driver对象真正实现Network功能（包括通信和管理），它并不直接暴露API给用户。Libnetwork支持多种Driver，其中包括内置的bridge，host，container和overlay，也对remote driver（即第三方，或用户自定义的网络驱动）进行了支持。
 
+---
+
+## CNM -- LibNetwork
+
 #### &nbsp; &nbsp; Endpoint：Endpoint对象是CNM Endpoint的一种实现。容器通过Endpoint对象接入Network，并通过Endpoint对象与其它容器进行通信。一个Endpoint对象只能属于一个Network对象，Network对象的API提供了对于Endpoint对象的创建与管理。
 
 #### &nbsp; &nbsp; Sandbox：Sandbox对象是CNM Sandbox的一种实现。Sandbox对象代表了一个容器的网络栈，拥有IP地址，MAC地址，routes，DNS等网络资源。一个Sandbox对象中可以有多个Endpoint对象，这些Endpoint对象可以属于不同的Network对象，Endpoint对象使用Sandbox对象中的网络资源与外界进行通信。Sandbox对象的创建发生在Endpoint对象的创建后，（Endpoint对象所属的）Network对象所绑定的Driver对象为该Sandbox对象分配网络资源并返回给libnetwork，然后libnetwork使用特定的机制（如linux netns）去配置Sandbox对象中对应的网络资源。
+
+## API
+
+* driver.Config
+* driver.CreateNetwork
+* driver.DeleteNetwork
+* driver.CreateEndpoint
+* driver.DeleteEndpoint
+* driver.Join
+* driver.Leave
 
 ---
 
@@ -114,56 +132,31 @@ func main() {
 	genericOption := make(map[string]interface{})
 	genericOption[netlabel.GenericData] = driverOptions
 	controller, err := libnetwork.New(config.OptionDriverConfig(networkType, genericOption))
-	if err != nil {
-		log.Fatalf("libnetwork.New: %s", err)
-	}
 
-	// Create a network for containers to join.
-	// NewNetwork accepts Variadic optional arguments that libnetwork and Drivers can use.
 	network, err := controller.NewNetwork(networkType, "network1", "")
-	if err != nil {
-		log.Fatalf("controller.NewNetwork: %s", err)
-	}
-
-	// For each new container: allocate IP and interfaces. The returned network
-	// settings will be used for container infos (inspect and such), as well as
-	// iptables rules for port publishing. This info is contained or accessible
-	// from the returned endpoint.
+	
 	ep, err := network.CreateEndpoint("Endpoint1")
-	if err != nil {
-		log.Fatalf("network.CreateEndpoint: %s", err)
-	}
 
-	// Create the sandbox for the container.
-	// NewSandbox accepts Variadic optional arguments which libnetwork can use.
 	sbx, err := controller.NewSandbox("container1",
 		libnetwork.OptionHostname("test"),
 		libnetwork.OptionDomainname("docker.io"))
-	if err != nil {
-		log.Fatalf("controller.NewSandbox: %s", err)
-	}
 
-	// A sandbox can join the endpoint via the join api.
 	err = ep.Join(sbx)
-	if err != nil {
-		log.Fatalf("ep.Join: %s", err)
-	}
 
-	// libnetwork client can check the endpoint's operational data via the Info() API
 	epInfo, err := ep.DriverInfo()
-	if err != nil {
-		log.Fatalf("ep.DriverInfo: %s", err)
-	}
 
 	macAddress, ok := epInfo[netlabel.MacAddress]
-	if !ok {
-		log.Fatalf("failed to get mac address from endpoint info")
-	}
 
 	fmt.Printf("Joined endpoint %s (%s) to sandbox %s (%s)\n", ep.Name(), macAddress, sbx.ContainerID(), sbx.Key())
 }
 ```
+---
 
+## CNI
+
+#### &nbsp; &nbsp; CNI（Container Networking Interface）是CoreOS为Rocket（docker之外的另一种容器引擎）提出的一种plugin-based的容器网络接口规范。CNI十分符合Kubernetes中的网络规划思想，Kubernetes采用了CNI作为默认的网络接口规范，目前CNI的实现有Weave、Calico、Romana、Contiv等。
+
+#### &nbsp; &nbsp; CNI没有像CNM一样规定模型的术语，CNI的实现依赖于两种plugin：CNI Plugin负责将容器connect/disconnect到host中的vbridge/vswitch，IPAM Plugin负责配置容器namespace中的网络参数。
 
 
 
