@@ -74,7 +74,7 @@ class: center, middle
 
 #### &nbsp; &nbsp; CNM（Container Network Model）是Cisco的一位工程师提出的一个容器网络模型。示意图如下：
 
-<img src="./CNM.png" width=300 style="margin: 0px 80px">
+<img src="./CNM.png" width=1000 style="margin: 0px 80px">
 
 ---
 
@@ -105,9 +105,12 @@ class: center, middle
 #### &nbsp; &nbsp; Sandbox：Sandbox对象是CNM Sandbox的一种实现。Sandbox对象代表了一个容器的网络栈，拥有IP地址，MAC地址，routes，DNS等网络资源。一个Sandbox对象中可以有多个Endpoint对象，这些Endpoint对象可以属于不同的Network对象，Endpoint对象使用Sandbox对象中的网络资源与外界进行通信。Sandbox对象的创建发生在Endpoint对象的创建后，（Endpoint对象所属的）Network对象所绑定的Driver对象为该Sandbox对象分配网络资源并返回给libnetwork，然后libnetwork使用特定的机制（如linux netns）去配置Sandbox对象中对应的网络资源。
 
 ### API
-* driver.Config				* driver.CreateNetwork
-* driver.DeleteNetwork		* driver.CreateEndpoint
-* driver.DeleteEndpoint		* driver.Join
+* driver.Config				
+* driver.CreateNetwork
+* driver.DeleteNetwork		
+* driver.CreateEndpoint
+* driver.DeleteEndpoint		
+* driver.Join
 * driver.Leave
 
 ---
@@ -150,13 +153,26 @@ func main() {
 
 #### &nbsp; &nbsp; CNI要求CNI Plugin支持容器的Add/Delete操作
 
-* AddNetworkList		* DelNetworkList
+### API
+
+* AddNetworkList
+* DelNetworkList
 
 
 ---
 
 ## CNI
 
+示意图如下：
+
+<img src="./cni.jpg" width=1000 style="margin: 0px 80px">
+
+---
+
+## CNI -- 配置示例
+
+
+<figure class="half">
 ```
 $ cat >/etc/cni/net.d/10-mynet.conf <<EOF
 {
@@ -175,6 +191,22 @@ $ cat >/etc/cni/net.d/10-mynet.conf <<EOF
 	}
 }
 ```
+```
+{
+    "name": "frontend",
+    "type": "calico",
+    "log_level": "DEBUG",
+    "etcd_endpoints": "http://162.105.175.30:2379",
+    "ipam": {
+        "type": "calico-ipam",
+        "assign_ipv4": "true",
+        "assign_ipv6": "true",
+        "ipv4_pools": ["10.0.0.0/24", "20.0.0.0/16"],
+        "ipv6_pools": ["2001:db8::1/120"]
+    }
+}
+```
+</figure>
 
 ---
 
@@ -197,6 +229,10 @@ $ cat >/etc/cni/net.d/10-mynet.conf <<EOF
 ```
 
 ---
+
+## CNM与CNI对比
+
+
 
 
 
