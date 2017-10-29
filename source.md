@@ -80,7 +80,7 @@ class: center, middle
 
 ## CNM（Container
 
-#### &nbsp; &nbsp; Sandbox：一个Sandbox对应一个容器的网络栈，能够对该容器的interface、route、dns等参数进行管理。一个Sandbox中可以有多个Endpoint，这些Endpoint可以属于不同的Network。Sandbox的实现可以为linux network namespace、FreeBSD Jail或其他类似的机制。
+#### &nbsp; &nbsp; Sandbox：一个Sandbox对应一个容器的网络栈，能够对该容器的interface、route、dns等参数进行管理。一个Sandbox中可以有多个Endpoint，这些Endpoint可以属于不同的Network。Sandbox的实现可以为linux network namespace、FreeBSD Jail或其他类似的机制。  https://github.com/docker/libnetwork
 
 #### &nbsp; &nbsp; Endpoint： Sandbox通过Endpoint接入Network，一个Endpoint只能属于一个Network，but may only belong to one Sandbox（这句翻译不好）。Endpoint的实现可以是veth pair、Open vSwitch internal port或者其他类似的设备。
 
@@ -104,8 +104,7 @@ class: center, middle
 
 #### &nbsp; &nbsp; Sandbox：Sandbox对象是CNM Sandbox的一种实现。Sandbox对象代表了一个容器的网络栈，拥有IP地址，MAC地址，routes，DNS等网络资源。一个Sandbox对象中可以有多个Endpoint对象，这些Endpoint对象可以属于不同的Network对象，Endpoint对象使用Sandbox对象中的网络资源与外界进行通信。Sandbox对象的创建发生在Endpoint对象的创建后，（Endpoint对象所属的）Network对象所绑定的Driver对象为该Sandbox对象分配网络资源并返回给libnetwork，然后libnetwork使用特定的机制（如linux netns）去配置Sandbox对象中对应的网络资源。
 
-## API
-
+### API
 * driver.Config
 * driver.CreateNetwork
 * driver.DeleteNetwork
@@ -154,13 +153,14 @@ func main() {
 
 ## CNI
 
-#### &nbsp; &nbsp; CNI（Container Networking Interface）是CoreOS为Rocket（docker之外的另一种容器引擎）提出的一种plugin-based的容器网络接口规范。CNI十分符合Kubernetes中的网络规划思想，Kubernetes采用了CNI作为默认的网络接口规范，目前CNI的实现有Weave、Calico、Romana、Contiv等。
+#### &nbsp; &nbsp; CNI（Container Networking Interface）是CoreOS为Rocket（docker之外的另一种容器引擎）提出的一种plugin-based的容器网络接口规范。CNI十分符合Kubernetes中的网络规划思想，Kubernetes采用了CNI作为默认的网络接口规范，目前CNI的实现有Flaanel、Weave、Calico、Romana、Contiv等。  https://github.com/containernetworking/cni
 
 #### &nbsp; &nbsp; CNI没有像CNM一样规定模型的术语，CNI的实现依赖于两种plugin：CNI Plugin负责将容器connect/disconnect到host中的vbridge/vswitch，IPAM Plugin负责配置容器namespace中的网络参数。
 
+#### &nbsp; &nbsp; CNI要求CNI Plugin支持容器的Add/Delete操作
 
 
-
+---
 
 ## 插图
 
