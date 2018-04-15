@@ -121,7 +121,7 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 最终的风险得分： 
 
-<img src="./risk.jpg" width=400 style="margin: 0px 80px">
+<img src="./risk.jpg" width=300 style="margin: 0px 80px">
 
 ---
 
@@ -131,7 +131,7 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 可以通过CPE查询该服务会受到哪些CVE的威胁。
 
-<img src="./CPEandCVE.jpg" width=800 style="margin: 0px 80px">
+<img src="./CPEandCVE.jpg" width=400 style="margin: 0px 80px">
 
 ---
 
