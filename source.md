@@ -76,7 +76,7 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 #### 架构如下：
 
-<img src="./architecture.jpg" width=800 style="margin: 0px 80px">
+<img src="./architecture.jpg" width=400 style="margin: 0px 80px">
 
 ---
 
@@ -98,7 +98,7 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 框架对仓库和拉取到本地的所有镜像的每一层进行扫描，与CVE进行对比
 
-<img src="./CVE.jpg" width=800 style="margin: 0px 80px">
+<img src="./CVE.jpg" width=400 style="margin: 0px 80px">
 
 通过CVSS，获取base，temporal，environmental三个分数，表示随着时间和用户环境变化的风险和原始特性。
 
@@ -106,7 +106,7 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 再通过综合计算得到该镜像的风险得分。
 
-<img src="./equation.jpg" width=800 style="margin: 0px 80px">
+<img src="./equation.jpg" width=400 style="margin: 0px 80px">
 
 ---
 
@@ -117,11 +117,11 @@ NVD是美国政府基于标准的漏洞管理的数据仓库，使用SCAP。这�
 
 使用改良的benchmark对宿主机操作系统、编排、容器后台（daemon）及运行中的容器配置进行检测。并结合likehood和impact给出分数
 
-<img src="./configuration.jpg" width=800 style="margin: 0px 80px">
+<img src="./configuration.jpg" width=300 style="margin: 0px 80px">
 
 最终的风险得分： 
 
-<img src="./risk.jpg" width=800 style="margin: 0px 80px">
+<img src="./risk.jpg" width=400 style="margin: 0px 80px">
 
 ---
 
